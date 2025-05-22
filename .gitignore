@@ -1,3 +1,8 @@
 node_modules
 dist
 *.log
+
+
+# Ignore all files in the llama-swap-binaries models directory
+electron/llamacpp-binaries/models/*
+electron/llamacpp-binaries/llama-swap.log

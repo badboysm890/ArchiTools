@@ -1,0 +1,66 @@
+# Seconds to wait for llama.cpp to load and be ready to serve requests
+# Default (and minimum) is 15 seconds
+healthCheckTimeout: 30
+
+# Valid log levels: debug, info (default), warn, error
+logLevel: info
+
+models:
+  "llama3:1b":
+    proxy: "http://127.0.0.1:9999"
+    cmd: |
+      $BINARY_DIR/llama-server
+      -m $BINARY_DIR/models/llama-3.2-1b-instruct-q4_k_m.gguf
+      --port 9999
+    aliases:
+      - "gpt-3.5-turbo"
+    # automatically unload the model after this many seconds of inactivity
+    ttl: 120
+
+  "tinyllama:1.1b":
+    proxy: "http://127.0.0.1:9999"
+    cmd: |
+      $BINARY_DIR/llama-server
+      -m $BINARY_DIR/models/tinyllama-1.1b-chat-v1.0.Q4_K_S.gguf
+      --port 9999
+    ttl: 120
+      
+  "qwen3:0.6b":
+    proxy: "http://127.0.0.1:9999"
+    cmd: |
+      $BINARY_DIR/llama-server
+      -m $BINARY_DIR/models/Qwen3-0.6B-Q4_K_S.gguf
+      --port 9999
+    ttl: 120
+
+  "qwen-vl:7b":
+    proxy: "http://127.0.0.1:9999"
+    cmd: |
+      $BINARY_DIR/llama-server
+      -m $BINARY_DIR/models/Qwen2.5-VL-7B-Instruct-q4_0.gguf
+      --mmproj $BINARY_DIR/models/Qwen2.5-VL-7B-Instruct-mmproj-f16.gguf
+      --port 9999
+    ttl: 120
+
+  "gemma3:4b":
+    proxy: "http://127.0.0.1:9999"
+    cmd: |
+      $BINARY_DIR/llama-server
+      -m $BINARY_DIR/models/gemma-3-4b-it-Q4_K_M.gguf
+      --mmproj $BINARY_DIR/models/mmproj-model-f16.gguf
+      --port 9999
+    ttl: 120
+
+# Define groups to control model swapping behavior
+groups:
+  "default_group":
+    # Only one model is allowed to run at a time
+    swap: true
+    # When this group runs a model, it causes all other groups to unload their models
+    exclusive: true
+    members:
+      - "llama3"
+      - "tinyllama"
+      - "qwen3"
+      - "qwen-vl"
+      - "gemma3"

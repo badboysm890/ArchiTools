@@ -1,1 +1,99 @@
 /* Add any custom styles here */ 
+
+/* Custom transitions and overlays for Smortr modern UI */
+
+.fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.4,0,0.2,1) both;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+.card-pop {
+  animation: cardPop 0.3s cubic-bezier(0.4,0,0.2,1) both;
+}
+@keyframes cardPop {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Overlay blur for modals */
+.overlay-blur {
+  backdrop-filter: blur(4px);
+}
+
+/* For floating action buttons */
+.fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 60;
+  background: linear-gradient(135deg, #2563eb 0%, #7C3AED 100%);
+  color: #fff;
+  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.16);
+  transition: box-shadow 0.2s;
+}
+.fab:hover {
+  box-shadow: 0 12px 48px 0 rgba(0,0,0,0.24);
+}
+
+/* Glassmorphism for overlays and modals */
+.glass {
+  background: rgba(36, 39, 47, 0.6);
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.16);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Button ripple effect */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+.ripple:after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(124,58,237,0.18); /* accent-2 */
+  border-radius: 100%;
+  transform: translate(-50%, -50%);
+  opacity: 0.7;
+  pointer-events: none;
+  transition: width 0.4s cubic-bezier(0.4,0,0.2,1), height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.4s;
+}
+.ripple:active:after {
+  width: 200px;
+  height: 200px;
+  opacity: 0;
+  transition: 0s;
+}
+
+/* Loading skeleton animation */
+.skeleton {
+  background: linear-gradient(90deg, #23272F 25%, #2D3748 50%, #23272F 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.2s infinite linear;
+  border-radius: 0.5rem;
+}
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Focus ring color for accessibility */
+:focus-visible {
+  outline: 2px solid #7C3AED;
+  outline-offset: 2px;
+} 

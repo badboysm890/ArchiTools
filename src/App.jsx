@@ -1,24 +1,27 @@
-import React from 'react'
-import './App.css'
+import React from 'react';
+import Navbar from './components/layout/Navbar';
+import LeftSidebar from './components/layout/LeftSidebar';
+import RightSidebar from './components/layout/RightSidebar';
+import MainContent from './components/layout/MainContent';
+import ChatInput from './components/layout/ChatInput';
+import FileManager from './components/FileManager';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
-      <div className="relative py-3 sm:max-w-xl sm:mx-auto">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-light-blue-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"></div>
-        <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
-          <div className="max-w-md mx-auto">
-            <div className="divide-y divide-gray-200">
-              <div className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
-                <h1 className="text-3xl font-bold text-gray-900 mb-8">Welcome to ArchiTools</h1>
-                <p>Your smart architecture companion</p>
-              </div>
-            </div>
-          </div>
+    <div className="flex flex-col h-screen bg-smortr-bg">
+      <Navbar />
+      <div className="flex flex-1 overflow-hidden">
+        <LeftSidebar />
+        <main className="flex-1 flex flex-col">
+          <MainContent />
+          <ChatInput />
+        </main>
+        <div className="w-80 border-l border-smortr-border">
+          <FileManager />
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default App 
+export default App; 

@@ -1,3 +1,85 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities; 
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: linear-gradient(135deg, #23272F 0%, #181A20 100%);
+  }
+  
+  body {
+    @apply antialiased bg-smortr-bg text-smortr-text transition-colors duration-300;
+  }
+} 
+
+@layer components {
+  .sidebar {
+    @apply bg-smortr-sidebar border-r border-smortr-border;
+  }
+  
+  .main-content {
+    @apply bg-smortr-bg;
+  }
+  
+  .card {
+    @apply bg-smortr-card rounded-xl shadow-smortr p-4 transition hover:shadow-smortr-lg;
+  }
+  
+  .card-light {
+    @apply bg-smortr-card-light rounded-xl shadow-smortr p-4 transition hover:shadow-smortr-lg;
+  }
+  
+  .modal {
+    @apply fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40;
+  }
+  
+  .modal-content {
+    @apply bg-smortr-card rounded-2xl shadow-smortr-lg p-8 max-w-lg w-full;
+  }
+  
+  .overlay {
+    @apply fixed inset-0 bg-black bg-opacity-30 z-40;
+  }
+  
+  .icon-btn {
+    @apply p-2 rounded-full hover:bg-smortr-hover transition text-smortr-text-secondary hover:text-smortr-accent;
+  }
+  
+  .input {
+    @apply bg-smortr-bg text-smortr-text border border-smortr-border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-smortr-accent transition;
+  }
+  
+  .input-light {
+    @apply bg-smortr-bg-light text-smortr-text-dark border border-smortr-border-light rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-smortr-accent transition;
+  }
+  
+  .button-primary {
+    @apply bg-smortr-accent text-white px-4 py-2 rounded-xl shadow hover:bg-smortr-accent/90 transition font-semibold;
+  }
+  
+  .button-secondary {
+    @apply bg-smortr-hover text-smortr-text px-4 py-2 rounded-xl hover:bg-opacity-90 transition;
+  }
+  
+  .notification-badge {
+    @apply bg-smortr-notification text-white text-xs px-2 py-0.5 rounded-full shadow;
+  }
+  
+  .toolbar {
+    @apply bg-smortr-sidebar border-t border-smortr-border shadow;
+  }
+  
+  .toolbar-button {
+    @apply text-smortr-text-secondary hover:text-smortr-accent p-2 rounded-xl hover:bg-smortr-hover transition;
+  }
+  
+  .glassy-bg {
+    background: rgba(36, 39, 47, 0.45);
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
+    backdrop-filter: blur(8px) saturate(1.1);
+    -webkit-backdrop-filter: blur(8px) saturate(1.1);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+} 

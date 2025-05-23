@@ -1,0 +1,135 @@
+/* MarkdownMessage specific styles */
+.markdown-content {
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+/* Ensure proper text color inheritance */
+.markdown-content * {
+  color: inherit;
+}
+
+/* Code styling */
+.markdown-content code {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+}
+
+.markdown-content pre code {
+  color: inherit;
+  background: transparent;
+  padding: 0;
+}
+
+/* Table styling */
+.markdown-content table {
+  border-spacing: 0;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+.markdown-content table th,
+.markdown-content table td {
+  text-align: left;
+  vertical-align: top;
+}
+
+/* List styling */
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 1.5rem;
+}
+
+.markdown-content li {
+  margin: 0.25rem 0;
+}
+
+/* Link styling */
+.markdown-content a {
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  transition: all 0.2s ease;
+}
+
+.markdown-content a:hover {
+  text-decoration: none;
+  border-bottom-color: transparent;
+}
+
+/* Blockquote styling */
+.markdown-content blockquote {
+  margin: 1rem 0;
+  font-style: italic;
+  position: relative;
+}
+
+.markdown-content blockquote::before {
+  content: '"';
+  position: absolute;
+  left: -0.5rem;
+  top: -0.5rem;
+  font-size: 2rem;
+  opacity: 0.3;
+}
+
+/* Heading spacing */
+.markdown-content h1:first-child,
+.markdown-content h2:first-child,
+.markdown-content h3:first-child,
+.markdown-content h4:first-child,
+.markdown-content h5:first-child,
+.markdown-content h6:first-child {
+  margin-top: 0;
+}
+
+/* Horizontal rule */
+.markdown-content hr {
+  margin: 2rem 0;
+  border: none;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.2;
+}
+
+/* Thinking section styling */
+.thinking-section {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.thinking-toggle {
+  cursor: pointer;
+  user-select: none;
+}
+
+.thinking-content {
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .markdown-content {
+    font-size: 0.875rem;
+  }
+  
+  .markdown-content h1 {
+    font-size: 1.5rem;
+  }
+  
+  .markdown-content h2 {
+    font-size: 1.25rem;
+  }
+  
+  .markdown-content h3 {
+    font-size: 1.125rem;
+  }
+  
+  .markdown-content pre {
+    font-size: 0.75rem;
+  }
+  
+  .markdown-content table {
+    font-size: 0.75rem;
+  }
+} 

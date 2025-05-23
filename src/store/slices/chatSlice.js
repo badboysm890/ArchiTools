@@ -20,7 +20,46 @@ const chatSlice = createSlice({
   initialState,
   reducers: {
     addMessage: (state, action) => {
-      state.messages.push(action.payload);
+      const message = action.payload;
+      
+      // Ensure message has required properties
+      if (!message.id || !message.role) {
+        console.warn('Invalid message format:', message);
+        return;
+      }
+      
+      // Check if message with this ID already exists (for streaming updates)
+      const existingIndex = state.messages.findIndex(m => m.id === message.id);
+      
+      if (existingIndex !== -1) {
+        // Update existing message
+        state.messages[existingIndex] = { ...state.messages[existingIndex], ...message };
+      } else {
+        // Add new message only if it doesn't already exist
+        state.messages.push(message);
+      }
+      
+      // Deduplicate messages if any duplicates exist
+      const seenIds = new Set();
+      state.messages = state.messages.filter(msg => {
+        if (seenIds.has(msg.id)) {
+          console.warn('Removing duplicate message with ID:', msg.id);
+          return false;
+        }
+        seenIds.add(msg.id);
+        return true;
+      });
+    },
+    updateMessage: (state, action) => {
+      const { id, ...updates } = action.payload;
+      const messageIndex = state.messages.findIndex(m => m.id === id);
+      
+      if (messageIndex !== -1) {
+        state.messages[messageIndex] = {
+          ...state.messages[messageIndex],
+          ...updates
+        };
+      }
     },
     setTyping: (state, action) => {
       state.isTyping = action.payload;
@@ -50,17 +89,35 @@ const chatSlice = createSlice({
         ...state.context.recentActions
       ].slice(0, 10);
     },
+    deduplicateMessages: (state) => {
+      const seenIds = new Set();
+      const originalLength = state.messages.length;
+      
+      state.messages = state.messages.filter(msg => {
+        if (seenIds.has(msg.id)) {
+          return false;
+        }
+        seenIds.add(msg.id);
+        return true;
+      });
+      
+      if (state.messages.length !== originalLength) {
+        console.warn(`Removed ${originalLength - state.messages.length} duplicate messages`);
+      }
+    },
   },
 });
 
 export const {
   addMessage,
+  updateMessage,
   setTyping,
   addSuggestedPrompt,
   removeSuggestedPrompt,
   updateContext,
   clearMessages,
   addRecentAction,
+  deduplicateMessages,
 } = chatSlice.actions;
 
 export default chatSlice.reducer; 

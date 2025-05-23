@@ -82,4 +82,124 @@
     border-radius: 0.75rem;
     border: 1px solid rgba(255,255,255,0.06);
   }
+
+  /* Chat-specific animations */
+  .chat-message-enter {
+    animation: chatMessageEnter 0.3s ease-out;
+  }
+
+  .typing-dots {
+    animation: typingDots 1.4s infinite ease-in-out;
+  }
+
+  .typing-dots:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .typing-dots:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+}
+
+@keyframes chatMessageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes typingDots {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}
+
+/* Syntax highlighting for code blocks */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css');
+
+/* Override highlight.js styles to match app theme */
+.hljs {
+  background: var(--color-bg) !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-border);
+}
+
+.hljs-keyword {
+  color: #ff79c6;
+}
+
+.hljs-string {
+  color: #f1fa8c;
+}
+
+.hljs-number {
+  color: #bd93f9;
+}
+
+.hljs-comment {
+  color: #6272a4;
+  font-style: italic;
+}
+
+.hljs-function {
+  color: #50fa7b;
+}
+
+.hljs-variable {
+  color: #8be9fd;
+}
+
+/* Markdown content styling improvements */
+.markdown-content {
+  line-height: 1.6;
+}
+
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.markdown-content table {
+  font-size: 0.875rem;
+}
+
+.markdown-content blockquote p {
+  margin-bottom: 0.5rem;
+}
+
+/* Typing dots animation */
+.typing-dots {
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dots:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-dots:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes typing {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
 } 

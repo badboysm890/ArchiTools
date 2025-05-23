@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FaSearchPlus, FaSearchMinus, FaExpandArrowsAlt, FaCompress, FaLink, FaUnlink } from 'react-icons/fa';
+import canvasService from '../../services/canvasService';
 
 const CanvasViewer = ({ file, isComparisonView = false, syncEnabled, setSyncEnabled, syncScale, setSyncScale, syncPosition, setSyncPosition, syncMaster, setSyncMaster }) => {
   // Log received sync props
@@ -17,6 +18,16 @@ const CanvasViewer = ({ file, isComparisonView = false, syncEnabled, setSyncEnab
   const [fitToScreen, setFitToScreen] = useState(true);
   const lastImageUrlRef = useRef(null);
   const fitPerformedRef = useRef(false);
+
+  // Register canvas with canvas service
+  useEffect(() => {
+    const canvasId = isComparisonView ? 'comparison-canvas' : 'main-canvas';
+    canvasService.registerCanvas(canvasId, canvasRef);
+    
+    return () => {
+      canvasService.unregisterCanvas(canvasId);
+    };
+  }, [isComparisonView]);
 
   // Load image when file changes
   useEffect(() => {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Logo from '../common/Logo';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSplitView, setOverlayView } from '../../store/slices/uiSlice';
+import logoImg from '../../assets/SmortrLogo.png';
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -11,8 +12,9 @@ const Navbar = () => {
   return (
     <nav className="h-16 flex items-center px-6 shadow-smortr z-50 bg-gradient-to-r from-smortr-accent via-smortr-accent-2 to-smortr-accent-3 transition-colors">
       <div className="flex items-center space-x-3">
-        <Logo className="h-9 w-9 text-white" />
-        <h1 className="text-2xl font-extrabold tracking-tight text-white drop-shadow-lg select-none">Smortr</h1>
+        {/* add the logo here */}
+        <img src={logoImg} alt="Smortr" className="h-9 w-auto" />
+        {/* <h1 className="text-2xl font-extrabold tracking-tight text-white drop-shadow-lg select-none">Smortr</h1> */}
       </div>
       <div className="flex-1 flex justify-center">
         <div className="flex items-center space-x-2 bg-smortr-card rounded-xl px-4 py-2 shadow-smortr card-pop">

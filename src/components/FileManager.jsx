@@ -287,7 +287,7 @@ const FileManager = () => {
             className="px-3 py-2 bg-smortr-accent text-white rounded hover:bg-smortr-accent/90 flex items-center space-x-2"
           >
             <FaPlus />
-            <span>Project</span>
+            {/* <span>Project</span> */}
           </button>
         </div>
 

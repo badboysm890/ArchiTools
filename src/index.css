@@ -1,3 +1,12 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css');
+
+:root {
+  /* Light theme colors */
+  --color-bg: #f8fafc;
+  --color-text: #1e293b;
+  --color-border: #e2e8f0;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -124,7 +133,6 @@
 }
 
 /* Syntax highlighting for code blocks */
-@import url('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css');
 
 /* Override highlight.js styles to match app theme */
 .hljs {
@@ -202,4 +210,38 @@
     opacity: 1;
     transform: scale(1);
   }
+}
+
+/* Custom range slider styles for count tool */
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #22c55e;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.slider::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #22c55e;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
 } 

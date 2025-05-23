@@ -7,7 +7,7 @@ export function useChat() {
   const dispatch = useDispatch();
   const { messages, isTyping } = useSelector(state => state.chat);
   
-  const [selectedModel, setSelectedModel] = useState('gemma3:4b');
+  const [selectedModel, setSelectedModel] = useState('qwen-vl:7b');
   const [availableModels, setAvailableModels] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -15,6 +15,9 @@ export function useChat() {
   // Refs for tracking streaming state
   const streamingRef = useRef(false);
   const currentStreamRef = useRef(null);
+  
+  // Session ID for image context (you can make this dynamic per conversation)
+  const [sessionId] = useState(`session_${Date.now()}`);
 
   // Load available models on mount and clean up duplicates
   useEffect(() => {
@@ -37,13 +40,13 @@ export function useChat() {
   // Auto-switch to image-capable model when images are present
   const getModelForMessage = useCallback((images = []) => {
     if (images && images.length > 0) {
-      // Only gemma3:4b for images as per requirement
-      return 'gemma3:4b';
+      // Only qwen-vl:7b for images as per requirement
+      return 'qwen-vl:7b';
     }
     return selectedModel;
   }, [selectedModel]);
 
-  // Send a message and stream the response
+  // Send a message and stream the response with smart image handling
   const sendMessage = useCallback(async (text, images = [], modelOverride = null) => {
     if (streamingRef.current) {
       console.warn('Already streaming, ignoring new message');
@@ -54,19 +57,19 @@ export function useChat() {
     setIsLoading(true);
     
     try {
-      // Create user message
-      const userMessage = chatService.createMessage('user', text, images);
+      // Create user message with session context
+      const userMessage = chatService.createMessage('user', text, images, sessionId);
       dispatch(addMessage(userMessage));
       
-      // Prepare messages for API
+      // Prepare messages for API with smart image handling
       const allMessages = [...messages, userMessage];
-      const apiMessages = await chatService.formatMessagesForAPI(allMessages);
+      const apiMessages = await chatService.formatMessagesForAPI(allMessages, sessionId);
       
       // Determine model to use (override takes precedence)
       const modelToUse = modelOverride || getModelForMessage(images);
       
       // Create assistant message placeholder
-      const assistantMessage = chatService.createMessage('assistant', '');
+      const assistantMessage = chatService.createMessage('assistant', '', [], sessionId);
       dispatch(addMessage(assistantMessage));
       dispatch(setTyping(true));
       
@@ -111,7 +114,9 @@ export function useChat() {
       // Add error message
       const errorMessage = chatService.createMessage(
         'assistant', 
-        'Sorry, I encountered an error while processing your message. Please try again.'
+        'Sorry, I encountered an error while processing your message. Please try again.',
+        [],
+        sessionId
       );
       dispatch(addMessage(errorMessage));
       
@@ -121,7 +126,7 @@ export function useChat() {
       streamingRef.current = false;
       currentStreamRef.current = null;
     }
-  }, [messages, selectedModel, getModelForMessage, dispatch]);
+  }, [messages, selectedModel, getModelForMessage, dispatch, sessionId]);
 
   // Cancel current stream
   const cancelStream = useCallback(() => {
@@ -133,11 +138,14 @@ export function useChat() {
     }
   }, [dispatch]);
 
-  // Clear all messages
+  // Clear all messages and image context
   const clearChat = useCallback(() => {
     dispatch(clearMessages());
+    // Clear image context for this session
+    chatService.clearImageContext(sessionId);
     setError(null);
-  }, [dispatch]);
+    console.log(`🧹 Cleared chat and image context for session: ${sessionId}`);
+  }, [dispatch, sessionId]);
 
   // Check if selected model supports images
   const isImageSupported = useCallback(() => {
@@ -156,6 +164,11 @@ export function useChat() {
     return modelNames[modelId] || modelId;
   }, []);
 
+  // Get image context statistics for debugging/monitoring
+  const getImageStats = useCallback(() => {
+    return chatService.getImageContextStats(sessionId);
+  }, [sessionId]);
+
   return {
     // State
     messages,
@@ -165,6 +178,7 @@ export function useChat() {
     selectedModel,
     availableModels,
     isStreaming: streamingRef.current,
+    sessionId,
     
     // Actions
     sendMessage,
@@ -175,6 +189,7 @@ export function useChat() {
     // Utilities
     isImageSupported,
     getModelDisplayName,
+    getImageStats,
     
     // Service methods (exposed for advanced usage)
     chatService

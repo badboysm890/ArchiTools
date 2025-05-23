@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { FaTimes } from 'react-icons/fa';
 import FileViewer from '../viewers/FileViewer';
 import MeasurementTool from '../tools/MeasurementTool';
+import CountTool from '../tools/CountTool';
 import { setCurrentFile, setComparisonFile, closeCurrentFile, closeComparisonFile, clearFiles } from '../../store/slices/filesSlice';
 import { setSplitView, setOverlayView } from '../../store/slices/uiSlice';
 import EmptyState from '../common/EmptyState';
@@ -117,6 +118,11 @@ const MainContent = () => {
     if (activeTool === 'measure') {
       return <MeasurementTool file={file} />;
     }
+    
+    if (activeTool === 'count') {
+      return <CountTool file={file} />;
+    }
+    
     return (
       <FileViewer
         file={file}

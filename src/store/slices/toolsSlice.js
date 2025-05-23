@@ -6,6 +6,11 @@ const initialState = {
     measure: {
       scale: 1,
       unit: 'mm'
+    },
+    count: {
+      brushSize: 3,
+      brushColor: '#22c55e',
+      captureMode: 'visible'
     }
   }
 };

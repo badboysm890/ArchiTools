@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -29,11 +30,77 @@ type FileInfo struct {
 
 var projects = make(map[string]Project)
 
+func loadExistingProjects() {
+	log.Println("Loading existing projects...")
+	
+	// Read the projects directory
+	entries, err := os.ReadDir("projects")
+	if err != nil {
+		log.Printf("Error reading projects directory: %v", err)
+		return
+	}
+	
+	for _, entry := range entries {
+		if entry.IsDir() {
+			projectID := entry.Name()
+			projectPath := filepath.Join("projects", projectID)
+			metadataPath := filepath.Join(projectPath, "project.json")
+			
+			var project Project
+			
+			// Try to load existing metadata
+			if metadataData, err := os.ReadFile(metadataPath); err == nil {
+				if err := json.Unmarshal(metadataData, &project); err == nil {
+					projects[projectID] = project
+					log.Printf("Loaded project: %s (%s)", project.Name, projectID)
+					continue
+				}
+			}
+			
+			// If no metadata exists, create default project info
+			info, err := entry.Info()
+			if err != nil {
+				continue
+			}
+			
+			project = Project{
+				ID:          projectID,
+				Name:        "Project " + projectID,
+				Description: "Auto-discovered project",
+				CreatedAt:   info.ModTime(),
+				UpdatedAt:   info.ModTime(),
+			}
+			
+			// Save the metadata for future use
+			saveProjectMetadata(project)
+			projects[projectID] = project
+			log.Printf("Created metadata for project: %s (%s)", project.Name, projectID)
+		}
+	}
+	
+	log.Printf("Loaded %d projects", len(projects))
+}
+
+func saveProjectMetadata(project Project) error {
+	projectPath := filepath.Join("projects", project.ID)
+	metadataPath := filepath.Join(projectPath, "project.json")
+	
+	data, err := json.MarshalIndent(project, "", "  ")
+	if err != nil {
+		return err
+	}
+	
+	return os.WriteFile(metadataPath, data, 0644)
+}
+
 func main() {
 	// Create projects directory if it doesn't exist
 	if err := os.MkdirAll("projects", 0755); err != nil {
 		log.Fatal(err)
 	}
+	
+	// Load existing projects from filesystem
+	loadExistingProjects()
 
 	r := gin.Default()
 
@@ -73,6 +140,11 @@ func createProject(c *gin.Context) {
 	if err := os.MkdirAll(projectPath, 0755); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
+	}
+
+	// Save project metadata
+	if err := saveProjectMetadata(project); err != nil {
+		log.Printf("Warning: failed to save project metadata: %v", err)
 	}
 
 	projects[project.ID] = project
@@ -134,11 +206,13 @@ func listFiles(c *gin.Context) {
 			return err
 		}
 
+		// Skip the root directory and project metadata file
+		if path == root || info.Name() == "project.json" {
+			return nil
+		}
+
 		fileType := "file"
 		if info.IsDir() {
-			if path == root {
-				return nil
-			}
 			fileType = "folder"
 		} else {
 			ext := filepath.Ext(path)

@@ -4,6 +4,7 @@ import { FaTimes } from 'react-icons/fa';
 import FileViewer from '../viewers/FileViewer';
 import MeasurementTool from '../tools/MeasurementTool';
 import CountTool from '../tools/CountTool';
+import ExtractTool from '../tools/ExtractTool';
 import { setCurrentFile, setComparisonFile, closeCurrentFile, closeComparisonFile, clearFiles } from '../../store/slices/filesSlice';
 import { setSplitView, setOverlayView } from '../../store/slices/uiSlice';
 import EmptyState from '../common/EmptyState';
@@ -121,6 +122,10 @@ const MainContent = () => {
     
     if (activeTool === 'count') {
       return <CountTool file={file} />;
+    }
+    
+    if (activeTool === 'extract') {
+      return <ExtractTool file={file} />;
     }
     
     return (

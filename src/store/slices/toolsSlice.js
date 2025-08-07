@@ -11,6 +11,12 @@ const initialState = {
       brushSize: 3,
       brushColor: '#22c55e',
       captureMode: 'visible'
+    },
+    extract: {
+      strokeColor: '#FF4444',
+      strokeWidth: 2,
+      fillOpacity: 0.1,
+      captureMode: 'visible'
     }
   }
 };

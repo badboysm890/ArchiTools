@@ -217,6 +217,169 @@ const LeftSidebar = () => {
             </div>
           </div>
         );
+      case 'extract':
+        const extractSettings = toolSettings?.extract || {
+          strokeColor: '#FF4444',
+          strokeWidth: 2,
+          fillOpacity: 0.1,
+          captureMode: 'visible'
+        };
+        
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm text-smortr-text-secondary mb-2">
+                Rectangle Color
+              </label>
+              <div className="grid grid-cols-5 gap-2">
+                {[
+                  { color: '#FF4444', name: 'Red' },
+                  { color: '#3b82f6', name: 'Blue' },
+                  { color: '#22c55e', name: 'Green' },
+                  { color: '#f59e0b', name: 'Orange' },
+                  { color: '#8b5cf6', name: 'Purple' }
+                ].map(({ color, name }) => (
+                  <button
+                    key={color}
+                    onClick={() => dispatch(updateToolSettings({
+                      tool: 'extract',
+                      settings: { strokeColor: color }
+                    }))}
+                    className={`relative w-10 h-10 rounded-lg border-2 transition-all hover:scale-110 ${
+                      extractSettings.strokeColor === color 
+                        ? 'border-smortr-accent ring-2 ring-smortr-accent/50 shadow-lg' 
+                        : 'border-smortr-border hover:border-smortr-accent/50'
+                    }`}
+                    style={{ backgroundColor: color }}
+                    title={name}
+                  >
+                    {extractSettings.strokeColor === color && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <svg className="w-5 h-5 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm text-smortr-text-secondary mb-2">
+                Stroke Width: {extractSettings.strokeWidth}px
+              </label>
+              <input
+                type="range"
+                min="1"
+                max="5"
+                value={extractSettings.strokeWidth}
+                onChange={(e) => dispatch(updateToolSettings({
+                  tool: 'extract',
+                  settings: { strokeWidth: parseInt(e.target.value) }
+                }))}
+                className="w-full h-2 bg-smortr-hover rounded-lg appearance-none cursor-pointer slider"
+              />
+              <div className="flex justify-between text-xs text-smortr-text-secondary mt-1">
+                <span>Thin</span>
+                <span>Thick</span>
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm text-smortr-text-secondary mb-2">
+                Fill Opacity: {Math.round(extractSettings.fillOpacity * 100)}%
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="0.5"
+                step="0.05"
+                value={extractSettings.fillOpacity}
+                onChange={(e) => dispatch(updateToolSettings({
+                  tool: 'extract',
+                  settings: { fillOpacity: parseFloat(e.target.value) }
+                }))}
+                className="w-full h-2 bg-smortr-hover rounded-lg appearance-none cursor-pointer slider"
+              />
+              <div className="flex justify-between text-xs text-smortr-text-secondary mt-1">
+                <span>Transparent</span>
+                <span>Opaque</span>
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm text-smortr-text-secondary mb-2">
+                Extraction Mode
+              </label>
+              <div className="space-y-2">
+                <button
+                  onClick={() => dispatch(updateToolSettings({
+                    tool: 'extract',
+                    settings: { captureMode: 'visible' }
+                  }))}
+                  className={`w-full px-4 py-3 rounded-lg border transition-all text-left ${
+                    extractSettings.captureMode === 'visible'
+                      ? 'border-smortr-accent bg-smortr-accent/10 text-smortr-accent'
+                      : 'border-smortr-border text-smortr-text-secondary hover:border-smortr-accent/50 hover:text-smortr-text'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <div className="font-medium">Visible Canvas</div>
+                      <div className="text-xs opacity-75">Extract from current view</div>
+                    </div>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => dispatch(updateToolSettings({
+                    tool: 'extract',
+                    settings: { captureMode: 'whole' }
+                  }))}
+                  className={`w-full px-4 py-3 rounded-lg border transition-all text-left relative ${
+                    extractSettings.captureMode === 'whole'
+                      ? 'border-yellow-400 bg-yellow-50 text-yellow-700'
+                      : 'border-smortr-border text-smortr-text-secondary hover:border-yellow-400/50'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <div className="font-medium">Whole File</div>
+                      <div className="text-xs opacity-75">Extract from entire document</div>
+                    </div>
+                    <div className="absolute top-1 right-1 bg-yellow-400 text-yellow-900 text-xs px-1.5 py-0.5 rounded-full font-medium">
+                      Not Ready
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+            
+            <div className="pt-2 border-t border-smortr-border">
+              <div className="text-xs text-smortr-text-secondary space-y-1">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span>Draw rectangles around content to extract</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span>AI will extract text and tables</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Copy formatted data to clipboard</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
       default:
         return (
           <div className="p-2 bg-smortr-hover rounded">

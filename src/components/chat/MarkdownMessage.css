@@ -132,4 +132,43 @@
   .markdown-content table {
     font-size: 0.75rem;
   }
+}
+
+/* Grid cell reference styling - elegant purple theme */
+.grid-cell-reference {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(124, 58, 237, 0.1));
+  color: #7c3aed;
+  padding: 2px 6px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  font-size: 0.9em;
+  position: relative;
+  display: inline-block;
+}
+
+.grid-cell-reference::before {
+  content: "📊";
+  margin-right: 3px;
+  font-size: 0.8em;
+}
+
+.clickable-grid-cell {
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(139, 92, 246, 0.2);
+}
+
+.clickable-grid-cell:hover {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(124, 58, 237, 0.2));
+  color: #6d28d9;
+  transform: scale(1.05) translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  border-color: rgba(139, 92, 246, 0.6);
+}
+
+.clickable-grid-cell:active {
+  transform: scale(1.02) translateY(0px);
+  transition-duration: 0.1s;
 } 

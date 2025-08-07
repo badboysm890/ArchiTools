@@ -3,104 +3,44 @@
  */
 
 import imageContextService from './imageContextService.js';
+import providerService from './providerService.js';
 
 class ChatService {
   constructor() {
-    this.baseUrl = 'http://localhost:8091';
     this._messageCounter = 0;
-    
-    // Image-capable models
-    this.imageCapableModels = ['gemma3:4b', 'qwen-vl:7b'];
+    this.initialized = false;
   }
 
   /**
-   * Get available models from the server
+   * Initialize the chat service
    */
-  async getModels() {
-    try {
-      const response = await fetch(`${this.baseUrl}/v1/models`, {
-        headers: {
-          'Authorization': 'Bearer no-key'
-        }
-      });
-      const data = await response.json();
-      
-      if (data.data) {
-        return data.data.map(model => model.id);
-      }
-      
-      return [];
-    } catch (error) {
-      console.warn('Failed to fetch models from server, using defaults:', error);
-      return [
-        'qwen3:0.6b',
-        'qwen-vl:7b',
-        'gemma3:4b', 
-        'llama3:1b',
-        'tinyllama:1.1b'
-      ];
+  async initialize() {
+    if (!this.initialized) {
+      await providerService.initialize();
+      this.initialized = true;
     }
   }
 
   /**
-   * Stream chat completion from llama.cpp server
+   * Get available models from the active provider
+   */
+  async getModels() {
+    await this.initialize();
+    try {
+      return await providerService.getModels();
+    } catch (error) {
+      console.warn('Failed to fetch models from provider:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Stream chat completion from active provider
    */
   async* streamChatCompletion(messages, model = 'qwen-vl:7b') {
+    await this.initialize();
     try {
-      const response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer no-key'
-        },
-        body: JSON.stringify({
-          model,
-          messages,
-          stream: true,
-          temperature: 0.7,
-          max_tokens: 2048
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error Response:', errorText);
-        throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        
-        if (done) break;
-        
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n').filter(line => line.trim() && line.startsWith('data: '));
-        
-        for (const line of lines) {
-          try {
-            const jsonStr = line.replace('data: ', '');
-            if (jsonStr === '[DONE]') {
-              return;
-            }
-            
-            const data = JSON.parse(jsonStr);
-            if (data.choices && data.choices[0] && data.choices[0].delta) {
-              const delta = data.choices[0].delta;
-              if (delta.content) {
-                yield {
-                  content: delta.content,
-                  finished: data.choices[0].finish_reason !== null
-                };
-              }
-            }
-          } catch (parseError) {
-            console.warn('Failed to parse chunk:', line);
-          }
-        }
-      }
+      yield* providerService.streamChatCompletion(messages, model);
     } catch (error) {
       console.error('Failed to stream chat completion:', error);
       throw error;
@@ -111,7 +51,7 @@ class ChatService {
    * Check if a model supports images
    */
   isImageCapable(modelId) {
-    return this.imageCapableModels.includes(modelId);
+    return providerService.isImageCapable(modelId);
   }
 
   /**
@@ -228,12 +168,28 @@ class ChatService {
             format: image.metadata.format,
             quality: image.metadata.quality,
             originalSize: `${image.metadata.originalWidth}x${image.metadata.originalHeight}`,
-            captureMode: image.metadata.captureMode
+            captureMode: image.metadata.captureMode,
+            gridEnabled: image.metadata.gridEnabled,
+            gridInfo: image.metadata.gridEnabled ? `${image.metadata.gridRows}x${image.metadata.gridCols}` : null
           });
           
           // Add capture mode info to text if it's a whole file capture
           if (image.metadata.captureMode === 'whole' && image.metadata.fileName) {
             textContent = `[Whole file capture: ${image.metadata.fileName}]\n\n${textContent}`;
+          }
+          
+          // Add grid context info if grid is enabled
+          if (image.metadata.gridEnabled && image.metadata.gridRows && image.metadata.gridCols) {
+            const totalCells = image.metadata.gridRows * image.metadata.gridCols;
+            const cellsWithContent = image.metadata.gridCellsWithContent || [];
+            
+            let gridContext = `[Grid Overlay: ${image.metadata.gridRows}×${image.metadata.gridCols} grid with ${totalCells} numbered cells (1-${totalCells})]`;
+            
+            if (cellsWithContent.length > 0) {
+              gridContext += `\n[Active Grid Cells: ${cellsWithContent.join(', ')} contain markings]`;
+            }
+            
+            textContent = `${gridContext}\n\n${textContent}`;
           }
         }
       } else if (image && typeof image === 'object' && image.url) {
@@ -266,30 +222,9 @@ class ChatService {
    * Non-streaming chat completion (for compatibility)
    */
   async getChatCompletion(messages, model = 'qwen-vl:7b') {
+    await this.initialize();
     try {
-      const response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer no-key'
-        },
-        body: JSON.stringify({
-          model,
-          messages,
-          stream: false,
-          temperature: 0.7,
-          max_tokens: 2048
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error Response:', errorText);
-        throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
-      }
-
-      const data = await response.json();
-      return data.choices[0].message.content;
+      return await providerService.getChatCompletion(messages, model);
     } catch (error) {
       console.error('Failed to get chat completion:', error);
       throw error;

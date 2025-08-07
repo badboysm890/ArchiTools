@@ -3,12 +3,13 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeRaw from 'rehype-raw';
+import gridAnnotationService from '../../services/gridAnnotationService';
 import './MarkdownMessage.css';
 
 const MarkdownMessage = ({ content, isUser = false }) => {
   const [showThinking, setShowThinking] = useState(false);
 
-  // Process content to handle <think> tags
+  // Process content to handle <think> tags and grid cell references
   const processContent = (rawContent) => {
     if (!rawContent || typeof rawContent !== 'string') {
       return { mainContent: '', thinkingContent: '' };
@@ -26,7 +27,12 @@ const MarkdownMessage = ({ content, isUser = false }) => {
     }
 
     // Remove thinking content from main content
-    const mainContent = rawContent.replace(thinkRegex, '').trim();
+    let mainContent = rawContent.replace(thinkRegex, '').trim();
+
+    // Process grid cell references if this is an assistant message
+    if (!isUser) {
+      mainContent = gridAnnotationService.highlightGridReferences(mainContent);
+    }
 
     return { mainContent, thinkingContent };
   };

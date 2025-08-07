@@ -1,13 +1,19 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addMessage, updateMessage, setTyping, clearMessages, deduplicateMessages } from '../store/slices/chatSlice';
+import { setSelectedModel } from '../store/slices/providersSlice';
 import chatService from '../services/chatService';
+import providerService from '../services/providerService';
 
 export function useChat() {
   const dispatch = useDispatch();
-  const { messages, isTyping } = useSelector(state => state.chat);
+  const { messages, isTyping } = useSelector(state => state.chat || {});
+  const { 
+    selectedModel = 'qwen-vl:7b', 
+    activeProviderId = 'llamacpp', 
+    providers = [] 
+  } = useSelector(state => state.providers || {});
   
-  const [selectedModel, setSelectedModel] = useState('qwen-vl:7b');
   const [availableModels, setAvailableModels] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -19,10 +25,11 @@ export function useChat() {
   // Session ID for image context (you can make this dynamic per conversation)
   const [sessionId] = useState(`session_${Date.now()}`);
 
-  // Load available models on mount and clean up duplicates
+  // Load available models on mount and when provider changes
   useEffect(() => {
     const loadModels = async () => {
       try {
+        await chatService.initialize();
         const models = await chatService.getModels();
         setAvailableModels(models);
       } catch (err) {
@@ -35,16 +42,27 @@ export function useChat() {
     dispatch(deduplicateMessages());
     
     loadModels();
-  }, [dispatch]);
+  }, [dispatch, activeProviderId]);
+
+  // Update available models when provider models change
+  useEffect(() => {
+    const activeProvider = providers.find(p => p.id === activeProviderId);
+    if (activeProvider && activeProvider.models) {
+      setAvailableModels(activeProvider.models);
+    }
+  }, [providers, activeProviderId]);
 
   // Auto-switch to image-capable model when images are present
   const getModelForMessage = useCallback((images = []) => {
     if (images && images.length > 0) {
-      // Only qwen-vl:7b for images as per requirement
-      return 'qwen-vl:7b';
+      // Find first image-capable model in available models
+      const imageCapableModel = availableModels.find(model => 
+        chatService.isImageCapable(model)
+      );
+      return imageCapableModel || selectedModel;
     }
     return selectedModel;
-  }, [selectedModel]);
+  }, [selectedModel, availableModels]);
 
   // Send a message and stream the response with smart image handling
   const sendMessage = useCallback(async (text, images = [], modelOverride = null) => {
@@ -152,16 +170,9 @@ export function useChat() {
     return chatService.isImageCapable(selectedModel);
   }, [selectedModel]);
 
-  // Get model display name
+  // Get model display name using provider service
   const getModelDisplayName = useCallback((modelId) => {
-    const modelNames = {
-      'qwen3:0.6b': 'Qwen 3 (0.6B)',
-      'qwen-vl:7b': 'Qwen VL (7B)',
-      'gemma3:4b': 'Gemma 3 (4B)',
-      'llama3:1b': 'Llama 3 (1B)',
-      'tinyllama:1.1b': 'TinyLlama (1.1B)'
-    };
-    return modelNames[modelId] || modelId;
+    return providerService.getModelDisplayName(modelId);
   }, []);
 
   // Get image context statistics for debugging/monitoring
@@ -184,7 +195,7 @@ export function useChat() {
     sendMessage,
     cancelStream,
     clearChat,
-    setSelectedModel,
+    setSelectedModel: (model) => dispatch(setSelectedModel(model)),
     
     // Utilities
     isImageSupported,

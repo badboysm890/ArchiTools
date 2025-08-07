@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useChat } from '../../hooks/useChat';
+import { setShowSettings } from '../../store/slices/providersSlice';
 import canvasService from '../../services/canvasService';
+import AIProviderSettings from '../settings/AIProviderSettings';
 
 const ChatInput = () => {
+  const dispatch = useDispatch();
   const {
     sendMessage,
     isLoading,
@@ -22,6 +25,7 @@ const ChatInput = () => {
   const { currentFile, comparisonFile } = useSelector(state => state.files);
   const { splitView, overlayView } = useSelector(state => state.ui);
   const { activeTool } = useSelector(state => state.tools);
+  const { activeProviderId, providers } = useSelector(state => state.providers);
 
   const [message, setMessage] = useState('');
   const [useDualModels, setUseDualModels] = useState(false);
@@ -293,9 +297,13 @@ const ChatInput = () => {
 
   const context = getChatContext();
 
+  const activeProvider = providers.find(p => p.id === activeProviderId);
+
   return (
-    <div className="bg-smortr-sidebar border-t border-smortr-border">
-      {/* Context Bar - Shows what we're chatting about */}
+    <>
+      <AIProviderSettings />
+      <div className="bg-smortr-sidebar border-t border-smortr-border">
+        {/* Context Bar - Shows what we're chatting about */}
       <div className="px-4 py-2 border-b border-smortr-border bg-smortr-hover/30">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -413,23 +421,30 @@ const ChatInput = () => {
         {/* Model Selection and Dual Model Toggle */}
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            {/* Model Selector */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setShowModelSelector(!showModelSelector)}
-                className="flex items-center space-x-2 px-3 py-1.5 bg-smortr-card border border-smortr-border rounded-lg hover:bg-smortr-hover transition-colors text-sm"
-              >
-                <span className="text-smortr-text font-medium">
-                  {getModelDisplayName(selectedModel)}
-                </span>
-                <svg className="w-4 h-4 text-smortr-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
+            {/* Provider + Model Selector */}
+            <div className="flex items-center space-x-2">
+              {/* Provider Indicator */}
+              <div className="text-xs text-smortr-text-secondary px-2 py-1 bg-smortr-hover rounded">
+                {activeProvider?.name || 'No Provider'}
+              </div>
+              
+              {/* Model Selector */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowModelSelector(!showModelSelector)}
+                  className="flex items-center space-x-2 px-3 py-1.5 bg-smortr-card border border-smortr-border rounded-lg hover:bg-smortr-hover transition-colors text-sm"
+                >
+                  <span className="text-smortr-text font-medium">
+                    {getModelDisplayName(selectedModel)}
+                  </span>
+                  <svg className="w-4 h-4 text-smortr-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
               
               {showModelSelector && (
-                <div className="absolute bottom-full mb-2 left-0 w-48 bg-smortr-card border border-smortr-border rounded-lg shadow-lg py-1 z-10">
+                <div className="absolute bottom-full mb-2 left-0 w-64 max-h-60 overflow-y-auto bg-smortr-card border border-smortr-border rounded-lg shadow-lg py-1 z-10">
                   {availableModels.map(model => (
                     <button
                       key={model}
@@ -450,6 +465,7 @@ const ChatInput = () => {
                   ))}
                 </div>
               )}
+              </div>
             </div>
 
             {/* Dual Model Toggle (only in split view) */}
@@ -461,10 +477,24 @@ const ChatInput = () => {
                   onChange={(e) => setUseDualModels(e.target.checked)}
                   className="rounded border-smortr-border text-smortr-accent focus:ring-smortr-accent focus:ring-offset-0"
                 />
-                <span className="text-smortr-text-secondary">Compare models</span>
-              </label>
-            )}
-          </div>
+                              <span className="text-smortr-text-secondary">Compare models</span>
+            </label>
+          )}
+          
+          {/* Settings Button */}
+          <button
+            type="button"
+            onClick={() => dispatch(setShowSettings(true))}
+            className="flex items-center space-x-1 px-3 py-1.5 bg-smortr-card border border-smortr-border rounded-lg hover:bg-smortr-hover transition-colors text-sm"
+            title="AI Provider Settings"
+          >
+            <svg className="w-4 h-4 text-smortr-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span className="text-smortr-text-secondary">Settings</span>
+          </button>
+        </div>
 
           {/* Status Indicators */}
           <div className="flex items-center space-x-2">
@@ -586,7 +616,8 @@ const ChatInput = () => {
           )}
         </div>
       </form>
-    </div>
+      </div>
+    </>
   );
 };
 

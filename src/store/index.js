@@ -6,6 +6,7 @@ import toolsReducer from './slices/toolsSlice';
 import uiReducer from './slices/uiSlice';
 import projectsReducer from './slices/projectsSlice';
 import chatReducer from './slices/chatSlice';
+import providersReducer from './slices/providersSlice';
 
 const filesPersistConfig = {
   key: 'files',
@@ -37,13 +38,20 @@ const chatPersistConfig = {
   whitelist: ['messages', 'suggestedPrompts']
 };
 
+const providersPersistConfig = {
+  key: 'providers',
+  storage,
+  whitelist: ['providers', 'activeProviderId', 'selectedModel']
+};
+
 export const store = configureStore({
   reducer: {
     files: persistReducer(filesPersistConfig, filesReducer),
     tools: persistReducer(toolsPersistConfig, toolsReducer),
     ui: persistReducer(uiPersistConfig, uiReducer),
     projects: persistReducer(projectsPersistConfig, projectsReducer),
-    chat: persistReducer(chatPersistConfig, chatReducer)
+    chat: persistReducer(chatPersistConfig, chatReducer),
+    providers: persistReducer(providersPersistConfig, providersReducer)
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
